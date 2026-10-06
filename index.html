@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Grammar Worksheets - Direct Object Review</title>
+<style>
+  :root {
+    --primary: #1d4ed8;
+    --primary-bg: #eff6ff;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #0f172a;
+    --border: #cbd5e1;
+    --success: #15803d;
+    --error: #b91c1c;
+
+    --subj-color: #0284c7;
+    --verb-color: #d97706;
+    --prep-color: #dc2626;
+    --do-color: #16a34a;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 24px 16px;
+    line-height: 1.6;
+  }
+
+  .container {
+    max-width: 980px;
+    margin: 0 auto;
+    background: var(--card);
+    padding: 32px 28px;
+    border-radius: 14px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  }
+
+  h1 {
+    font-size: 1.55rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0 0 6px 0;
+    text-align: center;
+  }
+
+  .subtitle {
+    text-align: center;
+    color: #64748b;
+    font-size: 0.92rem;
+    margin-bottom: 24px;
+  }
+
+  .tabs-scroll {
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .tabs-scroll::-webkit-scrollbar { height: 6px; }
+  .tabs-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+  .tabs { display: flex; gap: 8px; width: max-content; }
+
+  .tab-btn {
+    padding: 9px 18px;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    background: #f1f5f9;
+    color: #475569;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.88rem;
+    transition: all 0.2s;
+  }
+
+  .tab-btn:hover { background: #e2e8f0; }
+
+  .tab-btn.active {
+    background: var(--card);
+    color: var(--primary);
+    border-color: var(--border);
+    border-top: 3px solid var(--primary);
+    margin-bottom: -2px;
+  }
+
+  .instruction-box {
+    background: var(--primary-bg);
+    border-left: 5px solid var(--primary);
+    padding: 16px 20px;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 24px;
+    font-size: 0.95rem;
+  }
+
+  .toolbar-wrapper {
+    position: sticky;
+    top: 12px;
+    z-index: 50;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(8px);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 28px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+  }
+
+  .toolbar-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: 8px;
+  }
+
+  .tools-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+
+  .tool-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 13px;
+    border-radius: 8px;
+    border: 2px solid var(--border);
+    background: #fff;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.86rem;
+    transition: all 0.15s;
+  }
+
+  .tool-btn:hover { border-color: #94a3b8; }
+
+  .tool-btn.active {
+    border-color: var(--primary);
+    background: var(--primary-bg);
+    color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.2);
+  }
+
+  .sentence-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    user-select: none;
+  }
+
+  .sentence-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    transition: border-color 0.2s, background-color 0.2s;
+  }
+
+  .sentence-num {
+    font-weight: 700;
+    color: #64748b;
+    min-width: 38px;
+    padding-top: 4px;
+    font-size: 1rem;
+  }
+
+  .words-container {
+    font-size: 1.25rem;
+    font-family: "Georgia", serif;
+    line-height: 2.2;
+    touch-action: pan-y;
+  }
+
+  .word-token, .word-space {
+    display: inline;
+    cursor: pointer;
+    text-decoration-skip-ink: none;
+    position: relative;
+  }
+
+  .word-token.drag-hover,
+  .word-space.drag-hover {
+    background-color: #fef08a !important;
+  }
+
+  /* Single Continuous Underline */
+  .word-token.subject,
+  .word-space.subject {
+    text-decoration: underline;
+    text-decoration-color: var(--subj-color);
+    text-decoration-thickness: 2.5px;
+    text-underline-offset: 5px;
+  }
+
+  /* Double Continuous Underline */
+  .word-token.verb,
+  .word-space.verb {
+    text-decoration: underline double;
+    text-decoration-color: var(--verb-color);
+    text-decoration-thickness: 2.5px;
+    text-underline-offset: 5px;
+  }
+
+  /* Continuous Strikethrough */
+  .word-token.prep,
+  .word-space.prep {
+    text-decoration: line-through;
+    text-decoration-color: var(--prep-color);
+    text-decoration-thickness: 2.5px;
+  }
+
+  /* Direct Object (D.O. Badge + Underline) */
+  .word-token.do-label,
+  .word-space.do-label {
+    text-decoration: underline;
+    text-decoration-color: var(--do-color);
+    text-decoration-thickness: 3px;
+    text-underline-offset: 5px;
+  }
+  .word-token.do-start::before {
+    content: "D.O. ";
+    font-size: 0.65em;
+    vertical-align: super;
+    font-weight: bold;
+    color: var(--do-color);
+    font-family: sans-serif;
+  }
+
+  .card-status {
+    margin-left: auto;
+    font-size: 1.3rem;
+    min-width: 28px;
+    text-align: right;
+    padding-top: 2px;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 2px solid var(--border);
+  }
+
+  .btn {
+    padding: 12px 24px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-check { background: var(--primary); color: #fff; }
+  .btn-check:hover { background: #1e40af; }
+  .btn-show { background: #0f172a; color: #fff; }
+  .btn-show:hover { background: #1e293b; }
+  .btn-reset { background: #f1f5f9; color: #334155; }
+  .btn-reset:hover { background: #e2e8f0; }
+
+  .score-box {
+    margin-top: 20px;
+    padding: 16px 20px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    border-radius: 8px;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Direct Object Review</h1>
+  <div class="subtitle">Drag across words to create continuous underlined phrases, or click individual words for broken lines.</div>
+
+  <div class="tabs-scroll">
+    <div class="tabs" id="tabList"></div>
+  </div>
+
+  <div class="instruction-box" id="instructionBox"></div>
+
+  <div class="toolbar-wrapper">
+    <div class="toolbar-label">Choose Action Tool:</div>
+    <div class="tools-grid" id="toolsGrid">
+        <button class="tool-btn active" data-tool="subject">
+          <span style="text-decoration: underline; text-decoration-color: var(--subj-color); text-decoration-thickness: 2.5px; text-underline-offset: 4px; font-weight: bold;">Underline 1×</span> Subject
+        </button>
+        <button class="tool-btn" data-tool="verb">
+          <span style="text-decoration: underline double; text-decoration-color: var(--verb-color); text-decoration-thickness: 2.5px; text-underline-offset: 4px; font-weight: bold;">Underline 2×</span> Verb / Verb Phrase
+        </button>
+        <button class="tool-btn" data-tool="prep">
+          <span style="text-decoration: line-through; text-decoration-color: var(--prep-color); text-decoration-thickness: 2.5px; font-weight: bold;">Cross Out</span> Prepositional Phrase
+        </button>
+        <button class="tool-btn" data-tool="do-label">
+          <span style="text-decoration: underline; text-decoration-color: var(--do-color); font-weight: bold; color: var(--do-color);">D.O.</span> Direct Object
+        </button>
+        <button class="tool-btn" data-tool="eraser">
+          <span>🧼</span> Eraser
+        </button>
+    </div>
+  </div>
+
+  <div class="sentence-list" id="sentenceList"></div>
+  <div class="score-box" id="scoreDisplay"></div>
+
+  <div class="actions">
+    <button class="btn btn-check" onclick="checkAnswers()">Check Answers</button>
+    <button class="btn btn-show" onclick="showAnswers()">Show Key</button>
+    <button class="btn btn-reset" onclick="resetExercise()">Reset</button>
+  </div>
+</div>
+
+<script>
+const worksheets = [
+  {
+    id: "direct-object-review",
+    title: "Direct Object Review",
+    instruction: "<strong>Directions:</strong> Cross out any prepositional phrase(s). Underline the subject once and the verb or verb phrase twice. Label any direct object-D.O.<br><em>Example: <u>He</u> <u>stubbed</u> his <u><span style='color:var(--do-color);font-weight:bold;font-size:0.8em;vertical-align:super;'>D.O.</span> toe</u> <s>on a step</s>.</em>",
+    sentences: [
+      {
+        num: "1.", text: "The small child picked a flower for his mother.",
+        groups: { subject: [[2]], verb: [[3]], do: [[5]], prep: [[6, 7, 8]] }
+      },
+      {
+        num: "2.", text: "The club planted a tree for Arbor Day.",
+        groups: { subject: [[1]], verb: [[2]], do: [[4]], prep: [[5, 6, 7]] }
+      },
+      {
+        num: "3.", text: "During the afternoon, the boys and girls played basketball.",
+        groups: { subject: [[4], [6]], verb: [[7]], do: [[8]], prep: [[0, 1, 2]] }
+      },
+      {
+        num: "4.", text: "Is the mailman delivering a package today?",
+        groups: { subject: [[2]], verb: [[0], [3]], do: [[5]], prep: [] }
+      },
+      {
+        num: "5.", text: "I read an article about the stock market.",
+        groups: { subject: [[0]], verb: [[1]], do: [[3]], prep: [[4, 5, 6, 7]] }
+      },
+      {
+        num: "6.", text: "Mrs. Betts and Lyle made sugarless jam.",
+        groups: { subject: [[0, 1], [3]], verb: [[4]], do: [[6]], prep: [] }
+      },
+      {
+        num: "7.", text: "Mom and Dad washed and waxed the car.",
+        groups: { subject: [[0], [2]], verb: [[3], [5]], do: [[7]], prep: [] }
+      },
+      {
+        num: "8.", text: "That child carries her teddy bear with her everywhere.",
+        groups: { subject: [[1]], verb: [[2]], do: [[4, 5]], prep: [[6, 7]] }
+      },
+      {
+        num: "9.", text: "Some passengers took a plane from Dallas to Atlanta.",
+        groups: { subject: [[1]], verb: [[2]], do: [[4]], prep: [[5, 6], [7, 8]] }
+      },
+      {
+        num: "10.", text: "You should have taken your sleeping bag with you.",
+        groups: { subject: [[0]], verb: [[1, 2, 3]], do: [[5, 6]], prep: [[7, 8]] }
+      },
+      {
+        num: "11.", text: "Did everyone but Todd ride his horse to the outing?",
+        groups: { subject: [[1]], verb: [[0], [4]], do: [[6]], prep: [[2, 3], [7, 8, 9]] }
+      },
+      {
+        num: "12.", text: "One of the students wrote a letter to a local newspaper.",
+        groups: { subject: [[0]], verb: [[4]], do: [[6]], prep: [[1, 2, 3], [7, 8, 9, 10]] }
+      },
+      {
+        num: "13.", text: "The maid did not clean the tub or the shower.",
+        groups: { subject: [[1]], verb: [[2], [4]], do: [[6], [9]], prep: [] }
+      },
+      {
+        num: "14.", text: "Give this screwdriver to your brother, please.",
+        groups: { subject: [], verb: [[0]], do: [[2]], prep: [[3, 4, 5]] }
+      },
+      {
+        num: "15.", text: "Has anyone seen the blue basket without a handle?",
+        groups: { subject: [[1]], verb: [[0], [2]], do: [[5]], prep: [[6, 7, 8]] }
+      }
+    ]
+  }
+];
+
+let currentWorksheetIdx = 0;
+let currentTool = "subject";
+let isDragging = false;
+let dragStartIndex = null;
+let currentCardIndex = null;
+let didMove = false;
+
+function init() {
+  renderTabs();
+  loadWorksheet(0);
+  bindToolEvents();
+  bindGlobalEvents();
+}
+
+function renderTabs() {
+  const tabList = document.getElementById("tabList");
+  tabList.innerHTML = worksheets.map((ws, i) => `
+    <button class="tab-btn ${i === 0 ? 'active' : ''}" onclick="loadWorksheet(${i})">
+      ${ws.title}
+    </button>
+  `).join("");
+}
+
+function bindToolEvents() {
+  document.querySelectorAll(".tool-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tool-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentTool = btn.dataset.tool;
+    });
+  });
+}
+
+function loadWorksheet(idx) {
+  currentWorksheetIdx = idx;
+  const ws = worksheets[idx];
+
+  document.querySelectorAll(".tab-btn").forEach((btn, i) => {
+    btn.classList.toggle("active", i === idx);
+  });
+
+  document.getElementById("instructionBox").innerHTML = ws.instruction;
+
+  const container = document.getElementById("sentenceList");
+  container.innerHTML = "";
+
+  ws.sentences.forEach((s, sIndex) => {
+    const card = document.createElement("div");
+    card.className = "sentence-card";
+    card.id = `card-${sIndex}`;
+
+    const numSpan = document.createElement("div");
+    numSpan.className = "sentence-num";
+    numSpan.textContent = s.num;
+
+    const wordsDiv = document.createElement("div");
+    wordsDiv.className = "words-container";
+    wordsDiv.dataset.cardIdx = sIndex;
+
+    const tokens = s.text.split(" ");
+    tokens.forEach((token, wIndex) => {
+      const wordSpan = document.createElement("span");
+      wordSpan.className = "word-token";
+      wordSpan.textContent = token;
+      wordSpan.dataset.widx = wIndex;
+      wordsDiv.appendChild(wordSpan);
+
+      if (wIndex < tokens.length - 1) {
+        const spaceSpan = document.createElement("span");
+        spaceSpan.className = "word-space";
+        spaceSpan.textContent = " ";
+        spaceSpan.dataset.spaceAfter = wIndex;
+        wordsDiv.appendChild(spaceSpan);
+      }
+    });
+
+    const statusSpan = document.createElement("div");
+    statusSpan.className = "card-status";
+    statusSpan.id = `status-${sIndex}`;
+
+    card.appendChild(numSpan);
+    card.appendChild(wordsDiv);
+    card.appendChild(statusSpan);
+    container.appendChild(card);
+  });
+
+  document.getElementById("scoreDisplay").style.display = "none";
+}
+
+function bindGlobalEvents() {
+  document.addEventListener("mousedown", handlePointerStart);
+  document.addEventListener("mousemove", handlePointerMove);
+  document.addEventListener("mouseup", handlePointerEnd);
+
+  document.addEventListener("touchstart", (e) => {
+    const touch = e.touches[0];
+    const elem = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (elem && (elem.classList.contains("word-token") || elem.classList.contains("word-space"))) {
+      handlePointerStart({ target: elem, preventDefault: () => e.preventDefault() });
+    }
+  }, { passive: false });
+
+  document.addEventListener("touchmove", (e) => {
+    const touch = e.touches[0];
+    const elem = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (elem) handlePointerMove({ target: elem });
+  });
+
+  document.addEventListener("touchend", handlePointerEnd);
+}
+
+function handlePointerStart(e) {
+  const token = e.target.closest(".word-token");
+  if (!token) return;
+
+  const container = token.closest(".words-container");
+  if (!container) return;
+
+  isDragging = true;
+  didMove = false;
+  currentCardIndex = parseInt(container.dataset.cardIdx, 10);
+  dragStartIndex = parseInt(token.dataset.widx, 10);
+  clearHoverEffects();
+  token.classList.add("drag-hover");
+}
+
+function handlePointerMove(e) {
+  if (!isDragging) return;
+  const token = e.target.closest(".word-token");
+  const container = e.target.closest(".words-container");
+
+  if (!container || parseInt(container.dataset.cardIdx, 10) !== currentCardIndex) return;
+
+  if (token) {
+    const curIdx = parseInt(token.dataset.widx, 10);
+    if (curIdx !== dragStartIndex) {
+      didMove = true;
+    }
+    highlightDragRange(Math.min(dragStartIndex, curIdx), Math.max(dragStartIndex, curIdx));
+  }
+}
+
+function handlePointerEnd() {
+  if (!isDragging) return;
+  isDragging = false;
+
+  const card = document.getElementById(`card-${currentCardIndex}`);
+  if (!card) {
+    clearHoverEffects();
+    return;
+  }
+
+  const hoveredTokens = card.querySelectorAll(".word-token.drag-hover");
+  if (hoveredTokens.length > 0) {
+    const indices = Array.from(hoveredTokens).map(t => parseInt(t.dataset.widx, 10));
+    const minIdx = Math.min(...indices);
+    const maxIdx = Math.max(...indices);
+    const wasDragged = didMove && (minIdx !== maxIdx);
+
+    applyToolRange(currentCardIndex, minIdx, maxIdx, currentTool, wasDragged);
+  }
+
+  clearHoverEffects();
+}
+
+function highlightDragRange(start, end) {
+  clearHoverEffects();
+  const card = document.getElementById(`card-${currentCardIndex}`);
+  if (!card) return;
+
+  const tokens = card.querySelectorAll(".word-token");
+  tokens.forEach(tok => {
+    const idx = parseInt(tok.dataset.widx, 10);
+    if (idx >= start && idx <= end) tok.classList.add("drag-hover");
+  });
+
+  const spaces = card.querySelectorAll(".word-space");
+  spaces.forEach(sp => {
+    const idx = parseInt(sp.dataset.spaceAfter, 10);
+    if (idx >= start && idx < end) sp.classList.add("drag-hover");
+  });
+}
+
+function clearHoverEffects() {
+  document.querySelectorAll(".drag-hover").forEach(el => el.classList.remove("drag-hover"));
+}
+
+function applyToolRange(cardIdx, start, end, tool, wasDragged) {
+  const card = document.getElementById(`card-${cardIdx}`);
+  if (!card) return;
+
+  const tokens = card.querySelectorAll(".word-token");
+  const spaces = card.querySelectorAll(".word-space");
+
+  if (tool === "eraser") {
+    tokens.forEach(tok => {
+      const idx = parseInt(tok.dataset.widx, 10);
+      if (idx >= start && idx <= end) tok.className = "word-token";
+    });
+    spaces.forEach(sp => {
+      const idx = parseInt(sp.dataset.spaceAfter, 10);
+      if (idx >= start && idx < end) sp.className = "word-space";
+    });
+    return;
+  }
+
+  if (tool === "do-label") {
+    let allDo = true;
+    for (let i = start; i <= end; i++) {
+      if (!tokens[i].classList.contains("do-label")) allDo = false;
+    }
+    for (let i = start; i <= end; i++) {
+      tokens[i].classList.remove("subject", "verb", "prep", "do-label", "do-start");
+      if (!allDo) {
+        tokens[i].classList.add("do-label");
+        if (i === start) tokens[i].classList.add("do-start");
+      }
+    }
+    spaces.forEach(sp => {
+      const sIdx = parseInt(sp.dataset.spaceAfter, 10);
+      if (sIdx >= start && sIdx < end) {
+        sp.classList.remove("subject", "verb", "prep", "do-label");
+        if (!allDo && wasDragged) {
+          sp.classList.add("do-label");
+        }
+      }
+    });
+    return;
+  }
+
+  let allMarked = true;
+  for (let i = start; i <= end; i++) {
+    if (!tokens[i].classList.contains(tool)) {
+      allMarked = false;
+      break;
+    }
+  }
+
+  for (let i = start; i <= end; i++) {
+    tokens[i].classList.remove("subject", "verb", "prep", "do-label", "do-start");
+    if (!allMarked) {
+      tokens[i].classList.add(tool);
+    }
+  }
+
+  spaces.forEach(sp => {
+    const sIdx = parseInt(sp.dataset.spaceAfter, 10);
+    if (sIdx >= start && sIdx < end) {
+      sp.classList.remove("subject", "verb", "prep", "do-label");
+      if (!allMarked && wasDragged) {
+        sp.classList.add(tool);
+      }
+    }
+  });
+}
+
+function checkAnswers() {
+  const ws = worksheets[currentWorksheetIdx];
+  let correctTotal = 0;
+
+  ws.sentences.forEach((s, sIdx) => {
+    const card = document.getElementById(`card-${sIdx}`);
+    const status = document.getElementById(`status-${sIdx}`);
+    const tokens = card.querySelectorAll(".word-token");
+
+    const expSubj = (s.groups.subject || []).flat();
+    const expVerb = (s.groups.verb || []).flat();
+    const expPrep = (s.groups.prep || []).flat();
+    const expDo = (s.groups.do || []).flat();
+
+    let isMatch = true;
+
+    tokens.forEach((tok, idx) => {
+      const hasSubj = tok.classList.contains("subject");
+      const hasVerb = tok.classList.contains("verb");
+      const hasPrep = tok.classList.contains("prep");
+      const hasDo = tok.classList.contains("do-label");
+
+      if (hasSubj !== expSubj.includes(idx)) isMatch = false;
+      if (hasVerb !== expVerb.includes(idx)) isMatch = false;
+      if (hasPrep !== expPrep.includes(idx)) isMatch = false;
+      if (hasDo !== expDo.includes(idx)) isMatch = false;
+    });
+
+    if (isMatch) {
+      status.innerHTML = "✅";
+      card.style.borderColor = "var(--success)";
+      card.style.backgroundColor = "#f0fdf4";
+      correctTotal++;
+    } else {
+      status.innerHTML = "❌";
+      card.style.borderColor = "var(--error)";
+      card.style.backgroundColor = "#fef2f2";
+    }
+  });
+
+  const scoreBox = document.getElementById("scoreDisplay");
+  scoreBox.style.display = "block";
+  const pct = Math.round((correctTotal / ws.sentences.length) * 100);
+
+  if (correctTotal === ws.sentences.length) {
+    scoreBox.style.background = "#dcfce7";
+    scoreBox.style.color = "#15803d";
+    scoreBox.innerHTML = `🌟 Outstanding! Perfect score: ${correctTotal}/${ws.sentences.length} (100%)`;
+  } else {
+    scoreBox.style.background = "#fee2e2";
+    scoreBox.style.color = "#991b1b";
+    scoreBox.innerHTML = `Score: ${correctTotal}/${ws.sentences.length} (${pct}%). Please review items marked with ❌ and try again.`;
+  }
+}
+
+function showAnswers() {
+  const ws = worksheets[currentWorksheetIdx];
+
+  ws.sentences.forEach((s, sIdx) => {
+    const card = document.getElementById(`card-${sIdx}`);
+    const tokens = card.querySelectorAll(".word-token");
+    const spaces = card.querySelectorAll(".word-space");
+
+    tokens.forEach(tok => tok.className = "word-token");
+    spaces.forEach(sp => sp.className = "word-space");
+
+    const renderGroups = (groupList, className) => {
+      (groupList || []).forEach(group => {
+        group.forEach(idx => tokens[idx].classList.add(className));
+        for (let i = 0; i < group.length - 1; i++) {
+          const lIdx = group[i];
+          const rIdx = group[i + 1];
+          if (rIdx === lIdx + 1) {
+            spaces[lIdx].classList.add(className);
+          }
+        }
+      });
+    };
+
+    renderGroups(s.groups.subject, "subject");
+    renderGroups(s.groups.verb, "verb");
+    renderGroups(s.groups.prep, "prep");
+    renderGroups(s.groups.do, "do-label");
+
+    (s.groups.do || []).forEach(grp => {
+      tokens[grp[0]].classList.add("do-start");
+    });
+  });
+
+  checkAnswers();
+}
+
+function resetExercise() {
+  loadWorksheet(currentWorksheetIdx);
+}
+
+window.onload = init;
+</script>
+</body>
+</html>
